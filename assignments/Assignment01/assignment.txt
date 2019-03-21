@@ -1,0 +1,154 @@
+mysql> desc countries;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| code  | varchar(10)  | NO   | PRI | NULL    |       |
+| name  | varchar(100) | NO   |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> desc departments;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| code  | varchar(10)  | NO   | PRI | NULL    |       |
+| name  | varchar(100) | NO   |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> desc employees;
++-------------+--------------+------+-----+---------+----------------+
+| Field       | Type         | Null | Key | Default | Extra          |
++-------------+--------------+------+-----+---------+----------------+
+| id          | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name        | varchar(100) | NO   |     | NULL    |                |
+| age         | int(3)       | NO   |     | NULL    |                |
+| gender      | varchar(10)  | NO   |     | NULL    |                |
+| department  | varchar(10)  | NO   | MUL | NULL    |                |
+| salary      | int(11)      | NO   |     | NULL    |                |
+| designation | varchar(50)  | NO   |     | NULL    |                |
+| country     | varchar(10)  | NO   | MUL | NULL    |                |
+| lastUpdate  | timestamp    | YES  |     | NULL    |                |
++-------------+--------------+------+-----+---------+----------------+
+9 rows in set (0.00 sec)
+
+mysql> select * from countries;
++------+--------------------------+
+| code | name                     |
++------+--------------------------+
+| CND  | Canada                   |
+| IND  | India                    |
+| NZ   | New Zealand              |
+| TX   | Texas                    |
+| USA  | United States of America |
++------+--------------------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from departments;
++-------+------------------------+
+| code  | name                   |
++-------+------------------------+
+| BD    | Business Development   |
+| HR    | Human Resources        |
+| IT    | Information Technology |
+| Sales | Sales                  |
++-------+------------------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from employees;
++----+------------------+-----+--------+------------+--------+-------------+---------+---------------------+
+| id | name             | age | gender | department | salary | designation | country | lastUpdate          |
++----+------------------+-----+--------+------------+--------+-------------+---------+---------------------+
+|  1 | Samuel Jackson   |  52 | Male   | HR         |  87900 | Manager     | USA     | 2019-03-18 17:37:13 |
+|  2 | Robert Downey J. |  38 | Male   | IT         |  97900 | Developer   | USA     | 2019-03-18 17:38:46 |
+|  3 | Bruce Banner     |  39 | Male   | IT         |  77900 | Developer   | USA     | 2019-03-18 17:39:42 |
+|  4 | Steve Rogers     |  47 | Male   | BD         |  81900 | Manager     | NZ      | 2019-03-18 17:41:24 |
+|  5 | Jason Bourne     |  33 | Male   | Sales      |  86700 | Manager     | IND     | 2019-03-18 17:45:14 |
+|  6 | Kishan Narayan   |  26 | Male   | IT         |  57000 | Developer   | IND     | 2019-03-19 10:07:08 |
++----+------------------+-----+--------+------------+--------+-------------+---------+---------------------+
+6 rows in set (0.00 sec)
+
+mysql> select d.name as Department, count(*) as Total from employees e, departments d where e.department=d.code group by e.department;
++------------------------+-------+
+| Department             | Total |
++------------------------+-------+
+| Business Development   |     1 |
+| Human Resources        |     1 |
+| Information Technology |     3 |
+| Sales                  |     1 |
++------------------------+-------+
+4 rows in set (0.00 sec)
+
+mysql> select d.name,e.salary from departments d, employees e where e.department=d.code and e.salary>80000;
++------------------------+--------+
+| name                   | salary |
++------------------------+--------+
+| Human Resources        |  87900 |
+| Information Technology |  97900 |
+| Business Development   |  81900 |
+| Sales                  |  86700 |
++------------------------+--------+
+4 rows in set (0.00 sec)
+
+mysql> select c.name as Country,avg(e.salary) as Average from countries c,employees e where e.country=c.code group by e.country;
++--------------------------+------------+
+| Country                  | Average    |
++--------------------------+------------+
+| United States of America | 87900.0000 |
+| New Zealand              | 81900.0000 |
+| India                    | 71850.0000 |
++--------------------------+------------+
+3 rows in set (0.00 sec)
+
+mysql> ^C
+mysql> select d.name as Department,avg(e.salary) as Average from departments d,employees e where e.department=d.code group by e.department;
++------------------------+------------+
+| Department             | Average    |
++------------------------+------------+
+| Human Resources        | 87900.0000 |
+| Information Technology | 77600.0000 |
+| Business Development   | 81900.0000 |
+| Sales                  | 86700.0000 |
++------------------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> select c.name as Country,count(e.id) as Total from countries c,employees e where e.country=c.code group by e.country having count(e.id)>1;
++--------------------------+-------+
+| Country                  | Total |
++--------------------------+-------+
+| India                    |     2 |
+| United States of America |     3 |
++--------------------------+-------+
+2 rows in set (0.00 sec)
+
+mysql> select d.name as Department,count(e.id) as Total from departments d,employees e where e.department=d.code group by e.department having count(e.id)>1;
++------------------------+-------+
+| Department             | Total |
++------------------------+-------+
+| Information Technology |     3 |
++------------------------+-------+
+1 row in set (0.00 sec)
+
+mysql> notee;
+mysql> select d.name as Department, e.name as Employee from departments d,employees e where e.department=d.code and e.name like 'sa%';
++-----------------+----------------+
+| Department      | Employee       |
++-----------------+----------------+
+| Human Resources | Samuel Jackson |
++-----------------+----------------+
+1 row in set (0.00 sec)
+
+mysql> select d.name as Department, e.name as Name,c.name as Country from departments d,employees e,countries c where e.country=c.code and e.department=d.code;
++------------------------+------------------+--------------------------+
+| Department             | Name             | Country                  |
++------------------------+------------------+--------------------------+
+| Human Resources        | Samuel Jackson   | United States of America |
+| Information Technology | Robert Downey J. | United States of America |
+| Information Technology | Bruce Banner     | United States of America |
+| Business Development   | Steve Rogers     | New Zealand              |
+| Sales                  | Jason Bourne     | India                    |
+| Information Technology | Kishan Narayan   | India                    |
++------------------------+------------------+--------------------------+
+6 rows in set (0.00 sec)
+
+mysql> notee;
